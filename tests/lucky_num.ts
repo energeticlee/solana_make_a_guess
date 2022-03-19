@@ -158,7 +158,7 @@ describe("lucky_num", () => {
     const vaultAccountInfo = await program.provider.connection.getAccountInfo(
       userStatsPDA
     );
-    console.log("vaultAccountInfo", vaultAccountInfo);
+    // console.log("vaultAccountInfo", vaultAccountInfo);
 
     await program.rpc.participate(
       new anchor.BN(1 * LAMPORTS_PER_SOL), // stake - 1 sol
@@ -203,14 +203,14 @@ describe("lucky_num", () => {
       program.programId
     );
     let gameAccountInfo = await program.account.game.fetch(gameInfo.publicKey);
-    console.log(
-      "gameAccountInfo.maxParticipants",
-      gameAccountInfo.maxParticipants
-    );
-    console.log(
-      "gameAccountInfo.participantList",
-      gameAccountInfo.participantList
-    );
+    // console.log(
+    //   "gameAccountInfo.maxParticipants",
+    //   gameAccountInfo.maxParticipants
+    // );
+    // console.log(
+    //   "gameAccountInfo.participantList",
+    //   gameAccountInfo.participantList
+    // );
     // const particpantArr = await Promise.all(
     //   gameAccountInfo.participantList.map(async (acc) => {
     //     return await program.provider.connection.getAccountInfo(
@@ -228,7 +228,11 @@ describe("lucky_num", () => {
       personC.publicKey
     );
 
-    console.log("personA.publicKey ", personA.publicKey);
+    console.log("personA.publicKey ", personA.publicKey.toString());
+    console.log("personB.publicKey ", personB.publicKey.toString());
+    console.log("personC.publicKey ", personC.publicKey.toString());
+    console.log("gameInfo.publicKey ", gameInfo.publicKey.toString());
+    console.log("userStatsPDA ", userStatsPDA);
 
     // console.log(
     //   "particpantArr[0].accountInfo.key()",
@@ -244,27 +248,28 @@ describe("lucky_num", () => {
         playerThree: personC.publicKey,
         gameInfo: gameInfo.publicKey,
         vault: userStatsPDA,
+        systemProgram: anchor.web3.SystemProgram.programId,
       },
       // signers: [personC],
       //? Question 2: Why gameInfo not required to be signer eventhough we are mutating state
       //? Question: Passing a public key into an Account that expects AccountInfo work? see program.rpc.exchange above
     });
 
-    console.log("personA Wallet PK: ", personA.publicKey.toString());
-    console.log(
-      "personA Balance",
-      await provider.connection.getBalance(personA.publicKey)
-    );
-    console.log("personB Wallet PK: ", personB.publicKey.toString());
-    console.log(
-      "personB Balance",
-      await provider.connection.getBalance(personB.publicKey)
-    );
-    console.log("personC Wallet PK: ", personC.publicKey.toString());
-    console.log(
-      "personC Balance",
-      await provider.connection.getBalance(personC.publicKey)
-    );
+    // console.log("personA Wallet PK: ", personA.publicKey.toString());
+    // console.log(
+    //   "personA Balance",
+    //   await provider.connection.getBalance(personA.publicKey)
+    // );
+    // console.log("personB Wallet PK: ", personB.publicKey.toString());
+    // console.log(
+    //   "personB Balance",
+    //   await provider.connection.getBalance(personB.publicKey)
+    // );
+    // console.log("personC Wallet PK: ", personC.publicKey.toString());
+    // console.log(
+    //   "personC Balance",
+    //   await provider.connection.getBalance(personC.publicKey)
+    // );
   });
   // console.log("accountInfoAfterPB", accountInfoAfterPB.lamports);
   // console.log(

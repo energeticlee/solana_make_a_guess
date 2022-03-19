@@ -1,5 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::system_instruction::{transfer, create_account};
+use anchor_lang::solana_program::system_instruction::transfer;
 use anchor_lang::solana_program::program::{invoke, invoke_signed};
 use std::convert::TryInto;
 // use rand::Rng;
@@ -8,7 +8,6 @@ declare_id!("8BQunCRwyBZ3EaPP4bmCraTWhVvazrajNR3CtTM7P5rT");
 
 #[program]
 pub mod lucky_num {
-    use anchor_lang::solana_program::instruction::Instruction;
 
     use super::*;
     pub fn initialize(ctx: Context<Initialize>, stake: u64, max_participants: u8, lucky_num: u8, vault_bump: u8) -> ProgramResult {
@@ -43,6 +42,7 @@ pub mod lucky_num {
     }
     
     pub fn participate(ctx: Context<Participate>, stake: u64, lucky_num: u8) -> ProgramResult {
+
         let ix = transfer(&ctx.accounts.participant_account.key,&ctx.accounts.vault.key(), stake);
         invoke(
             &ix,
@@ -85,20 +85,22 @@ pub mod lucky_num {
             // Require account ID
 
             for i in winning_accounts {
-                let ix = transfer(&ctx.accounts.vault.key(),&i.key, share);
-                invoke_signed(
-                &ix,
-                    &[
-                        ctx.accounts.vault.to_account_info().clone(),
-                        i.clone(),
-                    ],&[&[b"pubkey", &[ctx.accounts.vault.bump]]]
-                )?;
-            };
+                Exchange::transfer_from_account_we_own(&mut ctx.accounts.vault.to_account_info().clone(),&mut i.clone(), share)?;
+            //     let ix = transfer(&ctx.accounts.vault.key(),&i.key, share);
+            //     invoke_signed(
+            //     &ix,
+            //         &[
+            //             ctx.accounts.vault.to_account_info().clone(),
+            //             i.clone(),
+            //         ],&[&[b"pubkey", &[ctx.accounts.vault.bump]]]
+            //     )?;
+            // };
             // Stack contain all winning transaction
             
             // Close and empty PDA
             // Close and empty game_info account
             // Close and empty all participant account
+        }
         }
         Ok(())
     }
@@ -109,10 +111,7 @@ pub struct Initialize<'info> {
     pub game_info: Account<'info, Game>,
     #[account(init, payer = initializer, space = 9000, seeds = [b"pubkey"], bump)]
     pub vault: Account<'info, Vault>,
-    #[account(
-        mut,
-        constraint = initializer.lamports() >= game_info.stake
-    )]
+    #[account(mut, constraint = initializer.lamports() >= game_info.stake)]
     pub initializer: Signer<'info>,
     pub system_program: Program <'info, System>
 }
@@ -142,8 +141,11 @@ pub struct Participate<'info> {
 
 #[derive(Accounts)]
 pub struct Exchange<'info> {
+    #[account(mut)]
     pub player_one: AccountInfo<'info>,
+    #[account(mut)]
     pub player_two: AccountInfo<'info>,
+    #[account(mut)]
     pub player_three: AccountInfo<'info>,
     #[account(
         mut,
@@ -153,7 +155,8 @@ pub struct Exchange<'info> {
     #[account(
         mut,
         constraint = game_info.max_participants == game_info.participant_list.len().try_into().unwrap())]
-    pub game_info: Account<'info, Game>
+    pub game_info: Account<'info, Game>,
+    pub system_program: Program<'info, System>
 }
 
 #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
@@ -175,4 +178,22 @@ pub struct Game {
 pub struct Vault {
     pub amount: u64,
     pub bump: u8
+}
+
+impl<'info> Exchange<'info> {
+    fn transfer_from_account_we_own(
+        src: &mut AccountInfo, // we better own this account though
+        dst: &mut AccountInfo,
+        amount: u64,
+    ) -> ProgramResult {
+        **src.try_borrow_mut_lamports()? = src
+            .lamports()
+            .checked_sub(amount)
+            .ok_or(ProgramError::InvalidArgument)?;
+        **dst.try_borrow_mut_lamports()? = dst
+            .lamports()
+            .checked_add(amount)
+            .ok_or(ProgramError::InvalidArgument)?;
+        Ok(())
+    }
 }
