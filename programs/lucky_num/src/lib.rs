@@ -43,7 +43,7 @@ pub mod lucky_num {
     
     pub fn participate(ctx: Context<Participate>, stake: u64, lucky_num: u8) -> ProgramResult {
         ctx.accounts.vault.amount += stake;
-        
+
         let ix = transfer(&ctx.accounts.participant_account.key,&ctx.accounts.vault.key(), stake);
         invoke(
             &ix,
@@ -97,11 +97,13 @@ pub mod lucky_num {
             //     )?;
             // };
             // Stack contain all winning transaction
-            
-            // Close and empty PDA
-            // Close and empty game_info account
-            // Close and empty all participant account
         }
+        // Close and empty PDA
+        ctx.accounts.vault.amount = 0;
+        ctx.accounts.vault.bump = 0;
+        Exchange::transfer_from_account_we_own(&mut ctx.accounts.vault.to_account_info().clone(),&mut ctx.accounts.player_one.clone(), ctx.accounts.vault.to_account_info().lamports())?;
+        // Close and empty game_info account
+        // Close and empty all participant account
         }
         Ok(())
     }

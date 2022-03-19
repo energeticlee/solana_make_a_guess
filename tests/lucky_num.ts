@@ -250,6 +250,10 @@ describe("lucky_num", () => {
 
     //   //the rust way -  to_account_info().key
     // );
+    const playerOneA1 = await program.provider.connection.getAccountInfo(
+      personA.publicKey
+    );
+    console.log("playerOne ", playerOneA1.lamports);
 
     await program.rpc.exchange({
       accounts: {
@@ -279,9 +283,9 @@ describe("lucky_num", () => {
       userStatsPDA
     );
 
-    console.log("playerOne ", playerOneA);
-    console.log("playerTwo ", playerTwoB);
-    console.log("playerThree ", playerThreeC);
+    console.log("playerOne ", playerOneA.lamports);
+    console.log("playerTwo ", playerTwoB.lamports);
+    console.log("playerThree ", playerThreeC.lamports);
     // const account = await program.account.vault.fetch(userStatsPDA);
     // console.log("accountPostExchange ", account.amount.toString());
     // console.log("gameAccountInfo ", gameAccountInfo);
