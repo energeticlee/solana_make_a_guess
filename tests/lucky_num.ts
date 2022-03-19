@@ -120,13 +120,14 @@ describe("lucky_num", () => {
         signers: [personA, gameInfo],
       }
     );
-    const account = await program.account.vault.fetch(userStatsPDA);
-    console.log(
-      `Vault Get balance A: ${
-        (await program.provider.connection.getBalance(userStatsPDA)) /
-        LAMPORTS_PER_SOL
-      } SOL`
-    );
+    // const account = await program.account.vault.fetch(userStatsPDA);
+    // console.log("accountPostInit ", account.amount.toString());
+    // console.log(
+    //   `Vault Get balance A: ${
+    //     (await program.provider.connection.getBalance(userStatsPDA)) /
+    //     LAMPORTS_PER_SOL
+    //   } SOL`
+    // );
     // console.log(
     //   `personA Get balance POST: ${
     //     (await program.provider.connection.getBalance(personA.publicKey)) /
@@ -155,9 +156,9 @@ describe("lucky_num", () => {
     // const gameAccountInfo = await program.provider.connection.getAccountInfo(
     //   gameInfo.publicKey
     // );
-    const vaultAccountInfo = await program.provider.connection.getAccountInfo(
-      userStatsPDA
-    );
+    // const vaultAccountInfo = await program.provider.connection.getAccountInfo(
+    //   userStatsPDA
+    // );
     // console.log("vaultAccountInfo", vaultAccountInfo);
 
     await program.rpc.participate(
@@ -181,6 +182,8 @@ describe("lucky_num", () => {
       [anchor.utils.bytes.utf8.encode("pubkey")],
       program.programId
     );
+    // const accounta = await program.account.vault.fetch(userStatsPDA);
+    // console.log("accountPreCJoining ", accounta.amount.toString());
 
     await program.rpc.participate(
       new anchor.BN(1 * LAMPORTS_PER_SOL), // stake - 1 sol
@@ -195,6 +198,8 @@ describe("lucky_num", () => {
         signers: [personC],
       }
     );
+    // const account = await program.account.vault.fetch(userStatsPDA);
+    // console.log("accountPostCJoining ", account.amount.toString());
   });
 
   it("Exchange", async () => {
@@ -202,7 +207,7 @@ describe("lucky_num", () => {
       [anchor.utils.bytes.utf8.encode("pubkey")],
       program.programId
     );
-    let gameAccountInfo = await program.account.game.fetch(gameInfo.publicKey);
+    // let gameAccountInfo = await program.account.game.fetch(gameInfo.publicKey);
     // console.log(
     //   "gameAccountInfo.maxParticipants",
     //   gameAccountInfo.maxParticipants
@@ -218,21 +223,26 @@ describe("lucky_num", () => {
     //     );
     //   })
     // );
-    const playerOne = await program.provider.connection.getAccountInfo(
-      personA.publicKey
-    );
-    const playerTwo = await program.provider.connection.getAccountInfo(
-      personB.publicKey
-    );
-    const playerThree = await program.provider.connection.getAccountInfo(
-      personC.publicKey
-    );
+    // const playerOne = await program.provider.connection.getAccountInfo(
+    //   personA.publicKey
+    // );
+    // const playerTwo = await program.provider.connection.getAccountInfo(
+    //   personB.publicKey
+    // );
+    // const playerThree = await program.provider.connection.getAccountInfo(
+    //   personC.publicKey
+    // );
+    // const userStatsPDAInfo = await program.provider.connection.getAccountInfo(
+    //   userStatsPDA
+    // );
 
-    console.log("personA.publicKey ", personA.publicKey.toString());
-    console.log("personB.publicKey ", personB.publicKey.toString());
-    console.log("personC.publicKey ", personC.publicKey.toString());
-    console.log("gameInfo.publicKey ", gameInfo.publicKey.toString());
-    console.log("userStatsPDA ", userStatsPDA);
+    // console.log("playerOne ", playerOne);
+    // console.log("playerTwo ", playerTwo);
+    // console.log("playerThree ", playerThree);
+    // console.log("playerThree ", userStatsPDAInfo);
+    // console.log("gameAccountInfo ", gameAccountInfo);
+    // const accounta = await program.account.vault.fetch(userStatsPDA);
+    // console.log("accountPreExchange ", accounta.amount.toString());
 
     // console.log(
     //   "particpantArr[0].accountInfo.key()",
@@ -254,6 +264,27 @@ describe("lucky_num", () => {
       //? Question 2: Why gameInfo not required to be signer eventhough we are mutating state
       //? Question: Passing a public key into an Account that expects AccountInfo work? see program.rpc.exchange above
     });
+
+    const playerOneA = await program.provider.connection.getAccountInfo(
+      personA.publicKey
+    );
+    const playerTwoB = await program.provider.connection.getAccountInfo(
+      personB.publicKey
+    );
+    const playerThreeC = await program.provider.connection.getAccountInfo(
+      personC.publicKey
+    );
+
+    const userStatsPDAInfoA = await program.provider.connection.getAccountInfo(
+      userStatsPDA
+    );
+
+    console.log("playerOne ", playerOneA);
+    console.log("playerTwo ", playerTwoB);
+    console.log("playerThree ", playerThreeC);
+    // const account = await program.account.vault.fetch(userStatsPDA);
+    // console.log("accountPostExchange ", account.amount.toString());
+    // console.log("gameAccountInfo ", gameAccountInfo);
 
     // console.log("personA Wallet PK: ", personA.publicKey.toString());
     // console.log(

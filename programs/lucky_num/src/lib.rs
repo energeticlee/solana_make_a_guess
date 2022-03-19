@@ -42,7 +42,8 @@ pub mod lucky_num {
     }
     
     pub fn participate(ctx: Context<Participate>, stake: u64, lucky_num: u8) -> ProgramResult {
-
+        ctx.accounts.vault.amount += stake;
+        
         let ix = transfer(&ctx.accounts.participant_account.key,&ctx.accounts.vault.key(), stake);
         invoke(
             &ix,
@@ -106,10 +107,16 @@ pub mod lucky_num {
     }
 }
 #[derive(Accounts)]
+#[instruction(stake: u64, max_participants: u8, lucky_num: u8, vault_bump: u8)]
 pub struct Initialize<'info> {
-    #[account(init, payer = initializer, space = 9000)]
+    #[account(init, payer = initializer, 
+        // space = Game::LEN + (usize::from(max_participants) * Game::PACTICIPANT_LEN))]
+        space = {
+            let space = (Game::LEN as u64).wrapping_add((max_participants as u64).wrapping_mul(Game::PACTICIPANT_LEN as u64)).try_into().unwrap();
+            space
+          })]  
     pub game_info: Account<'info, Game>,
-    #[account(init, payer = initializer, space = 9000, seeds = [b"pubkey"], bump)]
+    #[account(init, payer = initializer, space = Vault::LEN, seeds = [b"pubkey"], bump)]
     pub vault: Account<'info, Vault>,
     #[account(mut, constraint = initializer.lamports() >= game_info.stake)]
     pub initializer: Signer<'info>,
@@ -117,7 +124,7 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(stake: u64)]
+#[instruction(stake: u64, lucky_num: u8)]
 pub struct Participate<'info> {
     #[account(
         mut,
@@ -178,6 +185,29 @@ pub struct Game {
 pub struct Vault {
     pub amount: u64,
     pub bump: u8
+}
+
+// 2. Add some useful constants for sizing propeties.
+const DISCRIMINATOR_LENGTH: usize = 8;
+const PUBLIC_KEY_LENGTH: usize = 32;
+const STAKE_LENGTH: usize = 8;
+const MAX_PARTICIPANT_LENGTH: usize = 1;
+const PACTICIPANT_LEN_PREFIX: usize = 4; // Stores the size of the string.
+const PARTICIPANT_STRUCT_LEN: usize = 32 + 1; // 50 chars max.
+
+// 3. Add a constant on the Tweet account that provides its total size.
+impl Game {
+    const LEN: usize = DISCRIMINATOR_LENGTH
+        + PUBLIC_KEY_LENGTH // Initializer.
+        + STAKE_LENGTH // Stake.
+        + MAX_PARTICIPANT_LENGTH; // Number of participants.
+    const PACTICIPANT_LEN: usize = DISCRIMINATOR_LENGTH + PACTICIPANT_LEN_PREFIX + PUBLIC_KEY_LENGTH + 1;
+}
+
+impl Vault {
+    const LEN: usize = DISCRIMINATOR_LENGTH
+        + 8 // Amount.
+        + 1; // Bump.
 }
 
 impl<'info> Exchange<'info> {
