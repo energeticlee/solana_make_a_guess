@@ -1,7 +1,10 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::system_instruction::transfer;
-use anchor_lang::solana_program::program::{invoke, invoke_signed};
+use anchor_lang::solana_program::program::invoke;
+use anchor_lang::solana_program::pubkey::Pubkey;
+use anchor_lang::solana_program::clock::Clock;
 use std::convert::TryInto;
+
 // use rand::Rng;
 // solana address -k target/deploy/myepicproject-keypair.json <------
 declare_id!("8BQunCRwyBZ3EaPP4bmCraTWhVvazrajNR3CtTM7P5rT");
@@ -69,8 +72,11 @@ pub mod lucky_num {
             // Roll die
             // let mut rng = rand::thread_rng();
             // let lucky_number: u8 = rng.gen_range(1..7);
-            let lucky_number: u8 = 5;
-            
+            // let r = since_the_epoch.subsec_nanos() as u64 / 1_000_000;
+            let r = Clock::get()?.unix_timestamp;
+            let lucky_number: u8 = (r % 3 + 1) as u8;
+            // let lucky_number: u8 = temp.to_string().chars().find(|x| x.is_digit(10)).unwrap().to_digit(10).unwrap().try_into().unwrap();
+            // let lucky_number: u8 = 5;
             // Check how many correct guess
             let winners_pubkey: Vec<Pubkey> = ctx.accounts.game_info.participant_list.iter().fold([].to_vec(), |mut acc, val| {if val.lucky_num == lucky_number {acc.push(val.participant_address)}; acc});
             

@@ -163,7 +163,7 @@ describe("lucky_num", () => {
 
     await program.rpc.participate(
       new anchor.BN(1 * LAMPORTS_PER_SOL), // stake - 1 sol
-      new anchor.BN(2), // lucky_num - 6
+      new anchor.BN(2), // lucky_num - 1
       {
         accounts: {
           participantAccount: personB.publicKey,
@@ -187,7 +187,7 @@ describe("lucky_num", () => {
 
     await program.rpc.participate(
       new anchor.BN(1 * LAMPORTS_PER_SOL), // stake - 1 sol
-      new anchor.BN(5), // lucky_num - 6
+      new anchor.BN(3), // lucky_num - 6
       {
         accounts: {
           participantAccount: personC.publicKey,
